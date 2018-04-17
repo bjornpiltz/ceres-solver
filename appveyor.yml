@@ -1,0 +1,24 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+    - GENERATOR: "Visual Studio 15 2017 Win64"
+      IDENTIFIER: msvc_2017_x64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    
+clone_folder: c:\dev\Ceres-Solver
+
+install:
+  # Cut some noise as described here: http://bit.ly/2gUJxhC
+  - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
+  - cd c:\dev
+  - appveyor DownloadFile https://github.com/bjornpiltz/ceres_msvc_deps/releases/download/v1.1/ceres_deps_%IDENTIFIER%.zip
+  - cmd: unzip ceres_deps_%IDENTIFIER%.zip > nul
+  
+build_script:
+  - cd c:\dev
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF
+  - cmake --build build --config Release --target ALL_BUILD
+  - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
+  - cmake --build build --config Release --target RUN_TESTS
+  - cmake --build build --config Release --target INSTALL
