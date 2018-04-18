@@ -29,13 +29,18 @@ build_script:
   - cmake --build build --config Debug --target INSTALL
   
   # Copy necessary DLLs to make a self contained package.
-  - xcopy /y c:\dev\%IDENTIFIER%\bin\*.dll <install>\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\ceres_install_%IDENTIFIER%\lib64\lapack_blas_windows\*.dll <install>\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\ceres_install_%IDENTIFIER%\\lib\lapack_blas_windows\*.dll <install>\bin\
+  - xcopy /y c:\dev\%IDENTIFIER%\bin\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\ceres_install_%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\ceres_install_%IDENTIFIER%\\lib\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
+  
+  # Remove oldschool cmake files.
+  - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindEigen.cmake
+  - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindGflags.cmake
+  - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindGlog.cmake
   
   - # The following enables debugging Ceres sources.
-  - xcopy /y build\bin\Debug\.pdb <install>\bin\
-  - xcopy /y c:\dev\Ceres-Solver\internal\ceres install_ceres\src\
+  - xcopy /y build\bin\Debug\.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - xcopy /y c:\dev\Ceres-Solver\internal\ceres c:\dev\ceres_install_%IDENTIFIER%\src\
   - 7z a c:\dev\Ceres-Solver\ceres_%IDENTIFIER%_%APPVEYOR_REPO_COMMIT%.zip c:\dev\ceres_install_%IDENTIFIER%*
 
 artifacts:
