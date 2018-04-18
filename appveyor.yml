@@ -25,8 +25,8 @@ build_script:
   # build Ceres dynamic dll without tests:
   - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
   - cmake --build build --config Release --target INSTALL
-  - 7z a ceres_%IDENTIFIER%.zip c:/dev/ceres_install_%IDENTIFIER%*
+  - 7z a ceres_%IDENTIFIER%.zip c:\dev\ceres_install_%IDENTIFIER%*
 
 artifacts:
-  - path: ceres_%IDENTIFIER%.zip
-    name: ceres_%IDENTIFIER%
+  - path: c:\dev\ceres_install_%IDENTIFIER%.zip
+    name: ceres_%IDENTIFIER%_{build}
