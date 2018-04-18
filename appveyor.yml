@@ -28,5 +28,5 @@ build_script:
   - 7z a ceres_%IDENTIFIER%_{build}.zip c:\dev\ceres_install_%IDENTIFIER%*
 
 artifacts:
-  - path: c:\dev\ceres_%IDENTIFIER%_{build}.zip
+  - path: ..\ceres_%IDENTIFIER%_{build}.zip
     name: ceres_%IDENTIFIER%
