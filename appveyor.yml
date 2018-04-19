@@ -1,0 +1,56 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+    - GENERATOR: "Visual Studio 15 2017 Win64"
+      IDENTIFIER: msvc_2017_x64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    
+clone_folder: c:\dev\Ceres-Solver
+
+install:
+  # Cut some noise as described here: http://bit.ly/2gUJxhC
+  - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
+  - cd c:\dev
+  - appveyor DownloadFile https://github.com/bjornpiltz/ceres_msvc_deps/releases/download/v1.1/ceres_deps_%IDENTIFIER%.zip
+  - cmd: unzip ceres_deps_%IDENTIFIER%.zip > nul
+  
+build_script:
+  - cd c:\dev
+  # build Ceres static lib with tests:
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
+  - cmake --build build_tests --config Release --target ALL_BUILD
+  - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
+  - cmake --build build_tests --config Release --target RUN_TESTS
+  
+  # build Ceres dynamic dll without tests:
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
+  - cmake --build build --config Release --target INSTALL
+  - cmake --build build --config Debug --target INSTALL
+  
+  # Copy necessary DLLs to make a self contained package.
+  - xcopy /y c:\dev\%IDENTIFIER%\bin\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
+    
+  # Copy Eigen.
+  - xcopy /y /E c:\dev\%IDENTIFIER%\include\eigen3 c:\dev\ceres_install_%IDENTIFIER%\include\eigen3\
+  - xcopy /y /E c:\dev\%IDENTIFIER%\share\eigen3 c:\dev\ceres_install_%IDENTIFIER%\share\eigen3\
+
+  # Copy glog and gflags.
+  - xcopy /y /E c:\dev\%IDENTIFIER%\lib\glog*.lib c:\dev\ceres_install_%IDENTIFIER%\lib
+  - xcopy /y /E c:\dev\%IDENTIFIER%\lib\gflags*.lib c:\dev\ceres_install_%IDENTIFIER%\lib
+  - xcopy /y /E c:\dev\%IDENTIFIER%\lib\cmake c:\dev\ceres_install_%IDENTIFIER%\lib\cmake\ 
+  - xcopy /y /E c:\dev\%IDENTIFIER%\include\glog c:\dev\ceres_install_%IDENTIFIER%\include\glog\  
+  - xcopy /y /E c:\dev\%IDENTIFIER%\include\gflags c:\dev\ceres_install_%IDENTIFIER%\include\gflags\  
+  
+  - # The following enables debugging Ceres sources.
+  - xcopy /y build\bin\Debug\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - xcopy /y c:\dev\Ceres-Solver\internal\ceres c:\dev\ceres_install_%IDENTIFIER%\src\
+  
+  # Create a package.
+  - 7z a c:\dev\Ceres-Solver\ceres_%IDENTIFIER%_%APPVEYOR_REPO_COMMIT%.zip c:\dev\ceres_install_%IDENTIFIER%*
+
+artifacts:
+  - path: ceres_%IDENTIFIER%_%APPVEYOR_REPO_COMMIT%.zip
+    name: ceres_%IDENTIFIER%
