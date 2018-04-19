@@ -39,7 +39,7 @@ build_script:
   - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindGlog.cmake
   
   - # The following enables debugging Ceres sources.
-  - xcopy /y build\bin\Debug\.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - xcopy /y build\bin\Debug\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
   - xcopy /y c:\dev\Ceres-Solver\internal\ceres c:\dev\ceres_install_%IDENTIFIER%\src\
   - 7z a c:\dev\Ceres-Solver\ceres_%IDENTIFIER%_%APPVEYOR_REPO_COMMIT%.zip c:\dev\ceres_install_%IDENTIFIER%*
 
