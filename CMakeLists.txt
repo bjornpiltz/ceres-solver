@@ -255,17 +255,8 @@ if (EIGEN_FOUND)
 endif (EIGEN_FOUND)
 
 if (LAPACK)
-  find_package(LAPACK QUIET)
-  if (LAPACK_FOUND)
-    message("-- Found LAPACK library: ${LAPACK_LIBRARIES}")
-  else (LAPACK_FOUND)
-    message("-- Did not find LAPACK library, disabling LAPACK support.")
-    update_cache_variable(LAPACK OFF)
-    list(APPEND CERES_COMPILE_OPTIONS CERES_NO_LAPACK)
-  endif (LAPACK_FOUND)
-else (LAPACK)
-  message("-- Building without LAPACK.")
-  list(APPEND CERES_COMPILE_OPTIONS CERES_NO_LAPACK)
+    set(SuiteSparse_USE_LAPACK_BLAS ON)
+    message("-- Using LAPACK from SuiteSparse package")
 endif (LAPACK)
 
 if (SUITESPARSE)
@@ -273,7 +264,10 @@ if (SUITESPARSE)
   # built with SuiteSparse support.
 
   # Check for SuiteSparse and dependencies.
-  find_package(SuiteSparse)
+  find_package(SuiteSparse CONFIG REQUIRED)
+  set(SUITESPARSE_FOUND ON)
+  include(${USE_SuiteSparse})
+  list(APPEND SUITESPARSE_LIBRARIES ${SuiteSparse_LIBRARIES})
   if (SUITESPARSE_FOUND)
     # On Ubuntu the system install of SuiteSparse (v3.4.0) up to at least
     # Ubuntu 13.10 cannot be used to link shared libraries.

@@ -14,24 +14,24 @@ install:
   - cd c:\dev
   - appveyor DownloadFile https://github.com/bjornpiltz/ceres_msvc_deps/releases/download/v1.1/ceres_deps_%IDENTIFIER%.zip
   - cmd: unzip ceres_deps_%IDENTIFIER%.zip > nul
+  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\%IDENTIFIER%\bin\
+  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\%IDENTIFIER%\bin\
   
 build_script:
   - cd c:\dev
   # build Ceres static lib with tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
   - cmake --build build_tests --config Release --target ALL_BUILD
   - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
   - cmake --build build_tests --config Release --target RUN_TESTS
   
   # build Ceres dynamic dll without tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
   - cmake --build build --config Release --target INSTALL
   - cmake --build build --config Debug --target INSTALL
   
   # Copy necessary DLLs to make a self contained package.
   - xcopy /y c:\dev\%IDENTIFIER%\bin\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
     
   # Copy Eigen.
   - xcopy /y /E c:\dev\%IDENTIFIER%\include\eigen3 c:\dev\ceres_install_%IDENTIFIER%\include\eigen3\
