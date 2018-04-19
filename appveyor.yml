@@ -18,13 +18,13 @@ install:
 build_script:
   - cd c:\dev
   # build Ceres static lib with tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
   - cmake --build build_tests --config Release --target ALL_BUILD
   - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
   - cmake --build build_tests --config Release --target RUN_TESTS
   
   # build Ceres dynamic dll without tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
   - cmake --build build --config Release --target INSTALL
   - cmake --build build --config Debug --target INSTALL
   
