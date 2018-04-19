@@ -32,15 +32,23 @@ build_script:
   - xcopy /y c:\dev\%IDENTIFIER%\bin\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
   - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
   - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
-  
-  # Remove oldschool cmake files.
-  - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindEigen.cmake
-  - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindGflags.cmake
-  - del c:\dev\ceres_install_%IDENTIFIER%\CMake\FindGlog.cmake
+    
+  # Copy Eigen.
+  - xcopy /y /E c:\dev\%IDENTIFIER%\include\eigen3 c:\dev\ceres_install_%IDENTIFIER%\include\eigen3\
+  - xcopy /y /E c:\dev\%IDENTIFIER%\share\eigen3 c:\dev\ceres_install_%IDENTIFIER%\share\eigen3\
+
+  # Copy glog and gflags.
+  - xcopy /y /E c:\dev\%IDENTIFIER%\lib\glog*.lib c:\dev\ceres_install_%IDENTIFIER%\lib
+  - xcopy /y /E c:\dev\%IDENTIFIER%\lib\gflags*.lib c:\dev\ceres_install_%IDENTIFIER%\lib
+  - xcopy /y /E c:\dev\%IDENTIFIER%\lib\cmake c:\dev\ceres_install_%IDENTIFIER%\lib\cmake\ 
+  - xcopy /y /E c:\dev\%IDENTIFIER%\include\glog c:\dev\ceres_install_%IDENTIFIER%\include\glog\  
+  - xcopy /y /E c:\dev\%IDENTIFIER%\include\gflags c:\dev\ceres_install_%IDENTIFIER%\include\gflags\  
   
   - # The following enables debugging Ceres sources.
   - xcopy /y build\bin\Debug\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
   - xcopy /y c:\dev\Ceres-Solver\internal\ceres c:\dev\ceres_install_%IDENTIFIER%\src\
+  
+  # Create a package.
   - 7z a c:\dev\Ceres-Solver\ceres_%IDENTIFIER%_%APPVEYOR_REPO_COMMIT%.zip c:\dev\ceres_install_%IDENTIFIER%*
 
 artifacts:
