@@ -14,6 +14,8 @@ install:
   - cd c:\dev
   - appveyor DownloadFile https://github.com/bjornpiltz/ceres_msvc_deps/releases/download/v1.1/ceres_deps_%IDENTIFIER%.zip
   - cmd: unzip ceres_deps_%IDENTIFIER%.zip > nul
+  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\%IDENTIFIER%\bin\
+  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\%IDENTIFIER%\bin\
   
 build_script:
   - cd c:\dev
@@ -30,8 +32,6 @@ build_script:
   
   # Copy necessary DLLs to make a self contained package.
   - xcopy /y c:\dev\%IDENTIFIER%\bin\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\ceres_install_%IDENTIFIER%\bin\
     
   # Copy Eigen.
   - xcopy /y /E c:\dev\%IDENTIFIER%\include\eigen3 c:\dev\ceres_install_%IDENTIFIER%\include\eigen3\
