@@ -27,7 +27,7 @@ install:
 build_script:
   - cd c:\dev
   # build Ceres static lib with tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /Zi /MP /wd4267" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /INCREMENTAL"
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /Zi /MP /wd4267 /bigobj" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /INCREMENTAL"
   - cmake --build build_tests --config Release --target ALL_BUILD -- /maxcpucount:2
   - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
   - cmake --build build_tests --config Release --target RUN_TESTS -- /maxcpucount:2
