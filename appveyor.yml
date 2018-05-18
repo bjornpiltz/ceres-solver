@@ -27,13 +27,13 @@ install:
 build_script:
   - cd c:\dev
   # build Ceres static lib with tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /Zi /MP /wd4267" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /INCREMENTAL"
   - cmake --build build_tests --config Release --target ALL_BUILD -- /maxcpucount:2
   - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
   - cmake --build build_tests --config Release --target RUN_TESTS -- /maxcpucount:2
   
   # build Ceres dynamic dll without tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267 /Zi" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /INCREMENTAL"
   - cmake --build build --config Release --target INSTALL -- /maxcpucount:2
   - cmake --build build --config Debug --target INSTALL -- /maxcpucount:2
   
@@ -53,6 +53,7 @@ build_script:
   
   - # The following enables debugging Ceres sources.
   - xcopy /y build\bin\Debug\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - xcopy /y build\bin\Release\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
   - xcopy /y c:\dev\Ceres-Solver\internal\ceres c:\dev\ceres_install_%IDENTIFIER%\src\
   
   # Create a package.
