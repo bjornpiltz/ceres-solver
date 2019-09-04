@@ -4,36 +4,30 @@ environment:
   matrix:
     - GENERATOR: "Visual Studio 14 2015 Win64"
       IDENTIFIER: msvc_2015_x64
-    - GENERATOR: "Visual Studio 14 2015"
-      IDENTIFIER: msvc_2015_x86
     - GENERATOR: "Visual Studio 15 2017 Win64"
       IDENTIFIER: msvc_2017_x64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    - GENERATOR: "Visual Studio 15 2017"
-      IDENTIFIER: msvc_2017_x86
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - GENERATOR: "Visual Studio 16 2019"
+      IDENTIFIER: msvc_2019_x64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     
 clone_folder: c:\dev\Ceres-Solver
 
 install:
-  # Cut some noise as described here: http://bit.ly/2gUJxhC
-  - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
   - cd c:\dev
-  - appveyor DownloadFile https://github.com/bjornpiltz/ceres_msvc_deps/releases/download/v1.1/ceres_deps_%IDENTIFIER%.zip
+  - appveyor DownloadFile https://github.com/bjornpiltz/ceres_msvc_deps/releases/download/v1.2/ceres_deps_%IDENTIFIER%.zip
   - cmd: unzip ceres_deps_%IDENTIFIER%.zip > nul
-  - if exist c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib64\lapack_blas_windows\*.dll c:\dev\%IDENTIFIER%\bin\
-  - if exist c:\dev\%IDENTIFIER%\lib\lapack_blas_windows xcopy /y c:\dev\%IDENTIFIER%\lib\lapack_blas_windows\*.dll c:\dev\%IDENTIFIER%\bin\
   
 build_script:
   - cd c:\dev
   # build Ceres static lib with tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests  -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild_tests -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DLAPACK_DIR=c:\dev\%IDENTIFIER%\bin -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /Zi /MP /wd4267 /bigobj" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /INCREMENTAL"
   - cmake --build build_tests --config Release --target ALL_BUILD -- /maxcpucount:2
   - set PATH=%PATH%;C:\dev\%IDENTIFIER%\bin
   - cmake --build build_tests --config Release --target RUN_TESTS -- /maxcpucount:2
   
   # build Ceres dynamic dll without tests:
-  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267"
+  - cmake -G"%GENERATOR%" -HCeres-Solver -Bbuild -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=c:/dev/ceres_install_%IDENTIFIER% -DCMAKE_PREFIX_PATH=c:\dev\%IDENTIFIER% -DLAPACK_DIR=c:\dev\%IDENTIFIER%\bin -DSCHUR_SPECIALIZATIONS=OFF -DEIGENSPARSE=ON -DCMAKE_CXX_FLAGS="/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MP /wd4267 /Zi" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /INCREMENTAL"
   - cmake --build build --config Release --target INSTALL -- /maxcpucount:2
   - cmake --build build --config Debug --target INSTALL -- /maxcpucount:2
   
@@ -53,6 +47,7 @@ build_script:
   
   - # The following enables debugging Ceres sources.
   - xcopy /y build\bin\Debug\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
+  - xcopy /y build\bin\Release\*.pdb c:\dev\ceres_install_%IDENTIFIER%\bin\
   - xcopy /y c:\dev\Ceres-Solver\internal\ceres c:\dev\ceres_install_%IDENTIFIER%\src\
   
   # Create a package.
@@ -65,7 +60,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: QpA0FlNUekmYC5AQk77FEpMZ7iRP7LmXX19NTnIdRq4Bunregvdw3iPJ6epPpabJ
+    secure: +aBeZ3tfUPQLXLZqrv2OzfI6JNfkg05u9krZqLw318EvdEtLiGBXqUO1EyFGWQY5
   artifact: ceres_%IDENTIFIER%
   draft: false
   prerelease: true
