@@ -266,7 +266,6 @@ if (SUITESPARSE)
   # Check for SuiteSparse and dependencies.
   find_package(SuiteSparse CONFIG REQUIRED)
   set(SUITESPARSE_FOUND ON)
-  include(${USE_SuiteSparse})
   list(APPEND SUITESPARSE_LIBRARIES ${SuiteSparse_LIBRARIES})
   if (SUITESPARSE_FOUND)
     # On Ubuntu the system install of SuiteSparse (v3.4.0) up to at least
